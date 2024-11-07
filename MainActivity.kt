@@ -20,14 +20,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CalculatorApp()
+            AplicacionCalculadora()
         }
     }
 }
 
 @Composable
-fun CalculatorApp() {
-    var input by remember { mutableStateOf("") }
+fun AplicacionCalculadora() {
+    var entrada by remember { mutableStateOf("") }
+    var resultado by remember { mutableStateOf("") }
+    var operador by remember { mutableStateOf<Char?>(null) }
+    var primerOperando by remember { mutableStateOf<Double?>(null) }
 
     Column(
         Modifier
@@ -43,13 +46,22 @@ fun CalculatorApp() {
                 .height(100.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
-            Text(
-                text = input,
-                color = Color.White,
-                fontSize = 48.sp,
-                textAlign = TextAlign.End,
-                modifier = Modifier.padding(16.dp)
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = entrada,
+                    color = Color.White,
+                    fontSize = 36.sp,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.padding(16.dp)
+                )
+                Text(
+                    text = resultado,
+                    color = Color.Gray,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
 
         Column(
@@ -59,77 +71,148 @@ fun CalculatorApp() {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            val buttonModifier = Modifier
+            val modificadorBoton = Modifier
                 .weight(1f)
                 .padding(8.dp)
                 .aspectRatio(1f)
                 .background(Color.DarkGray, RoundedCornerShape(50))
 
-            val buttonTextStyle = MaterialTheme.typography.bodyLarge.copy(
+            val estiloTextoBoton = MaterialTheme.typography.bodyLarge.copy(
                 color = Color.White,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            // Row 1
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ButtonComponent(text = "7", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "7" }
-                ButtonComponent(text = "8", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "8" }
-                ButtonComponent(text = "9", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "9" }
-                ButtonComponent(text = "/", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "/" }
+                ComponenteBoton(texto = "7", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "7" }
+                ComponenteBoton(texto = "8", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "8" }
+                ComponenteBoton(texto = "9", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "9" }
+                ComponenteBoton(texto = "/", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    establecerOperador('/', entrada, operador, primerOperando, resultado) { op, primer, resultadoActual ->
+                        operador = op
+                        primerOperando = primer
+                        resultado = resultadoActual
+                        entrada = ""
+                    }
+                }
             }
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ButtonComponent(text = "4", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "4" }
-                ButtonComponent(text = "5", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "5" }
-                ButtonComponent(text = "6", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "6" }
-                ButtonComponent(text = "*", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "*" }
+                ComponenteBoton(texto = "4", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "4" }
+                ComponenteBoton(texto = "5", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "5" }
+                ComponenteBoton(texto = "6", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "6" }
+                ComponenteBoton(texto = "*", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    establecerOperador('*', entrada, operador, primerOperando, resultado) { op, primer, resultadoActual ->
+                        operador = op
+                        primerOperando = primer
+                        resultado = resultadoActual
+                        entrada = ""
+                    }
+                }
             }
 
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ButtonComponent(text = "1", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "1" }
-                ButtonComponent(text = "2", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "2" }
-                ButtonComponent(text = "3", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "3" }
-                ButtonComponent(text = "-", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "-" }
+                ComponenteBoton(texto = "1", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "1" }
+                ComponenteBoton(texto = "2", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "2" }
+                ComponenteBoton(texto = "3", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "3" }
+                ComponenteBoton(texto = "-", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    establecerOperador('-', entrada, operador, primerOperando, resultado) { op, primer, resultadoActual ->
+                        operador = op
+                        primerOperando = primer
+                        resultado = resultadoActual
+                        entrada = ""
+                    }
+                }
             }
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                ButtonComponent(text = "0", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "0" }
-                ButtonComponent(text = "C", modifier = buttonModifier, textStyle = buttonTextStyle) { input = "" }
-                ButtonComponent(text = "=", modifier = buttonModifier, textStyle = buttonTextStyle) {  }
-                ButtonComponent(text = "+", modifier = buttonModifier, textStyle = buttonTextStyle) { input += "+" }
+                ComponenteBoton(texto = "0", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) { entrada += "0" }
+                ComponenteBoton(texto = "C", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    entrada = ""
+                    resultado = ""
+                    operador = null
+                    primerOperando = null
+                }
+                ComponenteBoton(texto = "=", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    if (primerOperando != null && operador != null) {
+                        val segundoOperando = entrada.toDoubleOrNull()
+                        if (segundoOperando != null) {
+                            resultado = calcular(primerOperando!!, segundoOperando, operador!!).toString()
+                            entrada = resultado
+                            operador = null
+                            primerOperando = null
+                        }
+                    }
+                }
+                ComponenteBoton(texto = "+", modificador = modificadorBoton, estiloTexto = estiloTextoBoton) {
+                    establecerOperador('+', entrada, operador, primerOperando, resultado) { op, primer, resultadoActual ->
+                        operador = op
+                        primerOperando = primer
+                        resultado = resultadoActual
+                        entrada = ""
+                    }
+                }
             }
         }
     }
 }
 
+fun establecerOperador(
+    nuevoOperador: Char,
+    entrada: String,
+    operadorActual: Char?,
+    primerOperando: Double?,
+    resultado: String,
+    alActualizar: (Char, Double, String) -> Unit
+) {
+    val entradaComoDouble = entrada.toDoubleOrNull()
+    if (entradaComoDouble != null) {
+        if (operadorActual == null) {
+            alActualizar(nuevoOperador, entradaComoDouble, resultado)
+        } else if (primerOperando != null) {
+            val resultadoIntermedio = calcular(primerOperando, entradaComoDouble, operadorActual)
+            alActualizar(nuevoOperador, resultadoIntermedio, resultadoIntermedio.toString())
+        }
+    }
+}
+
+fun calcular(primerOperando: Double, segundoOperando: Double, operador: Char): Double {
+    return when (operador) {
+        '+' -> primerOperando + segundoOperando
+        '-' -> primerOperando - segundoOperando
+        '*' -> primerOperando * segundoOperando
+        '/' -> if (segundoOperando != 0.0) primerOperando / segundoOperando else Double.NaN
+        else -> Double.NaN
+    }
+}
+
 @Composable
-fun ButtonComponent(
-    text: String,
-    modifier: Modifier = Modifier,
-    textStyle: androidx.compose.ui.text.TextStyle = LocalTextStyle.current,
-    onClick: () -> Unit
+fun ComponenteBoton(
+    texto: String,
+    modificador: Modifier = Modifier,
+    estiloTexto: androidx.compose.ui.text.TextStyle = LocalTextStyle.current,
+    alHacerClic: () -> Unit
 ) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modificador.clickable(onClick = alHacerClic)
     ) {
-        Text(text = text, style = textStyle)
+        Text(text = texto, style = estiloTexto)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewCalculatorApp() {
-    CalculatorApp()
+fun VistaPreviaAplicacionCalculadora() {
+    AplicacionCalculadora()
 }
